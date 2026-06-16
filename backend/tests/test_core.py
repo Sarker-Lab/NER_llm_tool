@@ -31,6 +31,13 @@ class CsvIoTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "text"):
             load_csv_documents(b"body\nhello\n")
 
+    def test_load_csv_handles_non_utf8_bytes(self) -> None:
+        # cp1252/latin-1 encoded degree sign (0xb0) is not valid UTF-8 and
+        # previously raised UnicodeDecodeError instead of being decoded.
+        content = "text\n98.6\xb0F fever\n".encode("cp1252")
+        docs = load_csv_documents(content)
+        self.assertEqual(docs[0].text, "98.6\xb0F fever")
+
     def test_export_results_labels_column(self) -> None:
         csv_text = export_results_csv(
             [

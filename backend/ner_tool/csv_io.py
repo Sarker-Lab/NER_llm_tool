@@ -5,6 +5,7 @@ import json
 from typing import Any
 
 import pandas as pd
+from charset_normalizer import from_bytes
 
 from .models import DocumentResult, InputDocument
 from .text_utils import normalize_text
@@ -12,10 +13,31 @@ from .text_utils import normalize_text
 
 PRESERVED_EXPORT_COLUMNS = ("CID", "NOTE_ID", "variant")
 
+# Tried in order before falling back to charset detection. latin-1 is
+# excluded here since it never raises UnicodeDecodeError (it maps every byte
+# value), which would make the detection step below unreachable.
+_FALLBACK_ENCODINGS = ("utf-8", "utf-8-sig", "cp1252")
+
+
+def _decode_csv_bytes(content: bytes) -> str:
+    for encoding in _FALLBACK_ENCODINGS:
+        try:
+            return content.decode(encoding)
+        except UnicodeDecodeError:
+            continue
+
+    # None of the common encodings matched; fall back to detection, then
+    # latin-1 as a last-resort catch-all that is guaranteed to decode.
+    detected = from_bytes(content).best()
+    if detected is not None:
+        return str(detected)
+    return content.decode("latin-1")
+
 
 def load_csv_documents(content: bytes) -> list[InputDocument]:
     try:
-        frame = pd.read_csv(io.BytesIO(content), dtype=object).fillna("")
+        text = _decode_csv_bytes(content)
+        frame = pd.read_csv(io.StringIO(text), dtype=object).fillna("")
     except Exception as exc:
         raise ValueError(f"Could not parse CSV: {exc}") from exc
 

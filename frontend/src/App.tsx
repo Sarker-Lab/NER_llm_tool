@@ -311,7 +311,7 @@ export function App() {
       <header className="topbar">
         <div>
           <h1>NER LLM Tool</h1>
-          <p>gpt-oss extraction with Fontan-compatible spans</p>
+          <p>gpt-oss extraction with span-level entity output</p>
         </div>
         {jobId && (
           <a className={`button primary ${results.length === 0 ? 'disabled' : ''}`} href={results.length ? exportUrl(jobId) : undefined}>

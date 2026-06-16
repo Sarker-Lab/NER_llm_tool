@@ -18,14 +18,9 @@ DEFAULT_BATCH_SIZE = int(os.environ.get("NER_BATCH_SIZE", "8"))
 DEFAULT_REQUEST_TIMEOUT_SECONDS = float(os.environ.get("NER_REQUEST_TIMEOUT_SECONDS", "120"))
 
 DEFAULT_LABELS = [
-    "Heart Failure = Yes",
-    "Heart Failure = No",
-    "Cyanosis",
-    "FALD",
-    "Dysrhythmia",
-    "PLE or PB",
-    "Phenotype date",
-    "Fontan procedure date",
+    "Date",
+    "Name",
+    "Location",
 ]
 
 DEFAULT_PROMPT = """Extract named entities from the text. Your response MUST be valid JSON only, with no prose, markdown, or code fences.

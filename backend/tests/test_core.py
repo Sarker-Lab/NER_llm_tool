@@ -31,7 +31,7 @@ class CsvIoTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "text"):
             load_csv_documents(b"body\nhello\n")
 
-    def test_export_results_fontan_labels_column(self) -> None:
+    def test_export_results_labels_column(self) -> None:
         csv_text = export_results_csv(
             [
                 DocumentResult(
@@ -59,17 +59,17 @@ class TextUtilsTests(unittest.TestCase):
         self.assertIn("- X", prompt)
 
     def test_parse_llm_entities_uses_context_filters_and_dedupes(self) -> None:
-        note = "date 1/1/2020. Fontan 1/1/2020. cyanosis."
+        note = "date 1/1/2020. Procedure 1/1/2020. cyanosis."
         raw = """
         ```json
         {"entities":[
-          {"label":"Fontan procedure date","text":"1/1/2020","context":"Fontan 1/1/2020"},
-          {"label":"Fontan procedure date","text":"1/1/2020","context":"Fontan 1/1/2020"},
+          {"label":"Procedure date","text":"1/1/2020","context":"Procedure 1/1/2020"},
+          {"label":"Procedure date","text":"1/1/2020","context":"Procedure 1/1/2020"},
           {"label":"Unknown","text":"cyanosis","context":"cyanosis"}
         ]}
         ```
         """
-        spans = parse_llm_entities(note, raw, ["Fontan procedure date"])
+        spans = parse_llm_entities(note, raw, ["Procedure date"])
         self.assertEqual(len(spans), 1)
         self.assertEqual(spans[0].start, note.rfind("1/1/2020"))
         self.assertEqual(spans[0].text, "1/1/2020")
